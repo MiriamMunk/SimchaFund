@@ -1,0 +1,165 @@
+﻿@model ViewModel
+
+<div class="container">
+    @if (!String.IsNullOrEmpty(Model.NewPersonTempData))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>@Model.NewPersonTempData</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (!String.IsNullOrEmpty(Model.DepositTempData))
+    {
+        <div class="alert alert-dark alert-dismissible fade show" role="alert">
+            <strong>@Model.DepositTempData</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (!String.IsNullOrEmpty(Model.UpdatePersonTempData))
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong>@Model.UpdatePersonTempData</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    <div class="row">
+        <button class="btn btn-danger " id="new-contributer-btn">New Contributer</button>
+        <input class="col-md-2 ml-md-auto" type="text" placeholder="Search" id="search" />
+        <button class="btn btn-danger " id="clear-btn">Clear</button>
+        <h4 class="col-md-2 ml-md-auto">Total: @Model.Total</h4>
+    </div>
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Deposit</th>
+                <th>Name</th>
+                <th>Cell</th>
+                <th>Balance</th>
+                <th>Always include</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            @foreach (var p in Model.People)
+            {
+                <tr>
+                    <td><button class="btn btn-primary" id="deposit-btn" data-prsnid="@p.Id">Deposit</button></td>
+                    <td id="first-name-this">@p.FirstName <span id="last-name-this">@p.LastName</span></td>
+                    <td id="cell-this">@p.Cell</td>
+                    <td id="deposit-this">@p.Deposit</td>
+                    <td id="always-include-this">
+                        @if (p.AlwaysInclude)
+                        {
+                            <span class="oi oi-thumb-up"></span>
+                        }
+                    </td>
+                    <td>
+                        <a href="/home/history?id=@p.Id" class="btn btn-info">Show History</a>
+                        <button data-first-name="@p.FirstName" data-last-name="@p.LastName" data-cell="@p.Cell"
+                                data-date="@p.Date" date-always-include="@p.AlwaysInclude" data-id="@p.Id" class="btn btn-danger" id="edit-btn">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="NewContributerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Contributer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/home/add">
+                <div class="modal-body">
+                    <input type="text" placeholder="First Name" id="first-name" name="firstName" />
+                    <input type="text" placeholder="Last Name" id="last-name" name="lastName" />
+                    <input type="text" placeholder="Cell" id="cell" name="cell" />
+                    <input type="text" placeholder="Initial Deposit" id="deposit" name="deposit" />
+                    <input type="date" placeholder="mm/dd/yyyy" id="date-created" name="date" />
+                    <label>always include</label>
+                    <input type="checkbox" value="true" id="always-include" name="alwaysInclude">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DepositModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Deposit for <span id="deposit-name"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/home/saveDeposit">
+                <input type="hidden" name="personId" value="" />
+                <div class="modal-body">
+                    <div class="row">
+                        <label>Amount</label>
+                    </div>
+                    <div class="row">
+                        <input type="text" placeholder="Deposit Amount" name="amount" />
+                    </div>
+                    <div class="row">
+                        <label>Date</label>
+                    </div>
+                    <div class="row">
+                        <input type="date" placeholder="mm/dd/yyyy" id="date-created" name="date" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/home/edit">
+                <div class="modal-body">
+                    <input type="hidden" id="id" name="Id" />
+                    <input type="text" placeholder="First Name" id="fn" name="firstName" />
+                    <input type="text" placeholder="Last Name" id="ln" name="lastName" />
+                    <input type="text" placeholder="Cell" id="phone" name="cell" />
+                    <input type="date" placeholder="mm/dd/yyyy" id="created" name="date" />
+                    <label>always include</label>
+                    <input type="checkbox" value="true" id="include" name="alwaysInclude">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

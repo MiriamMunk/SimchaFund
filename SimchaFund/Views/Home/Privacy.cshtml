@@ -1,0 +1,81 @@
+﻿@model ViewModel
+
+<div class="container">
+    @if (!String.IsNullOrEmpty(Model.NewSimchaTempdata))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>@Model.NewSimchaTempdata</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (!String.IsNullOrEmpty(Model.UpdateSimchaTempData))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>@Model.UpdateSimchaTempData</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    <div class="row">
+        <button class="btn btn-danger " id="new-simcha-btn">New Simcha</button>
+    </div>
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Contributions</th>
+                <th>Simcha Name</th>
+                <th>Contributer Count</th>
+                <th>Total</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Simchos)
+            {
+                <tr>
+                    <td><a href="/home/contributions?id=@s.Id" class="btn btn-primary">Contributions</a></td>
+                    <td>@s.Name</td>
+                    <td>@s.NumOfContributers/@Model.People.Count()</td>
+                    <td>@s.Total</td>
+                    <td>@s.Date</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="NewSimchaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Simcha</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" action="/home/addSimcha">
+                    <div class="modal-body">
+                        <div class="row">
+                            <label>Simcha Name</label>
+                        </div>
+                        <div class="row">
+                            <input type="text" placeholder="Simcha Name" name="Name" />
+                        </div>
+                        <div class="row">
+                            <label>Simcha Date</label>
+                        </div>
+                        <div class="row">
+                            <input type="date" placeholder="mm/dd/yyyy" id="date-created" name="date" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

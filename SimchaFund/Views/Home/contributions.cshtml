@@ -1,0 +1,51 @@
+﻿@model ViewModel
+
+<div class="container">
+    <div class="row">
+        <h2>Contributions for the @Model.NameOfSimcha.Name</h2>
+    </div>
+    <form method="post" action="/home/update">
+        <input type="hidden" name="SimchaId" value="@Model.NameOfSimcha.Id" />
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Contribute</th>
+                    <th>Name</th>
+                    <th>Balance</th>
+                    <th>Always include</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.People.Count(); i++)
+                {
+                    <tr>
+                        <td>
+                            @if (Model.People[i].AlwaysInclude)
+                            {
+                                <input type="checkbox" value="true" name="person[@i].AlwaysInclude" checked="checked">
+                            }
+                            else
+                            { 
+                                <input type="checkbox" value="true" name="person[@i].AlwaysInclude" >
+                            }
+                        </td>
+                        <td>@Model.People[i].FirstName <span>@Model.People[i].LastName</span></td>
+                        <td>@Model.People[i].Deposit</td>
+                        <td>
+                            @if (Model.People[i].AlwaysInclude)
+                            {
+                                <span class="oi oi-thumb-up"></span>
+                            }
+                        </td>
+                        <td>
+                            <input type="text" value="5" name="person[@i].deposit" />
+                        </td>
+                    </tr>
+                    <input type="hidden" value="@Model.People[i].Id" name="person[@i].id" />
+                }
+            </tbody>
+        </table>
+        <button class="btn btn-primary btn-lg">Update</button>
+    </form>
+</div>
