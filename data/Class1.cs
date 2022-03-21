@@ -105,58 +105,40 @@ namespace data
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = @"select sp.amount from SimchaTable s
+            cmd.CommandText = @"select isnull(sum(sp.amount), 0) from SimchaTable s
                                 left join SimchaPeople sp
                                 on s.Id = sp.SimchaId
                                 left join People p
                                 on p.Id = sp.PersonId
-                                where s.id = @id and sp.amount > 0";
+                                where s.id = @id";
             cmd.Parameters.AddWithValue("@id", id);
             conn.Open();
-            decimal amount = 0;
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                amount += (decimal)reader["amount"];
-            }
-            return amount;
+            return (decimal)cmd.ExecuteScalar();
         }
         public decimal getPersonTotalById(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = @"select Amount from People p
+            cmd.CommandText = @"select isnull(sum(d.Amount), 0) from People p
                                 join Deposit d 
                                 on d.PersonId = p.Id
                                 where p.Id = @id";
             cmd.Parameters.AddWithValue("@id", id);
             conn.Open();
-            decimal amount = 0;
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                amount += (decimal)reader["amount"];
-            }
             decimal money = getPersonTotalById2(id);
-            return amount - money;
+            return (decimal)cmd.ExecuteScalar() - money;
         }
         public decimal getPersonTotalById2(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = @"select sp.amount from People p
+            cmd.CommandText = @"select isnull(sum(sp.amount), 0) from People p
                                 join SimchaPeople sp
                                 on sp.PersonId = p.Id
                                 where p.Id = @id";
             cmd.Parameters.AddWithValue("@id", id);
             conn.Open();
-            decimal amount = 0;
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                amount += (decimal)reader["amount"];
-            }
-            return amount;
+            return (decimal)cmd.ExecuteScalar();
         }
         public void addPerson(Person p)
         {
