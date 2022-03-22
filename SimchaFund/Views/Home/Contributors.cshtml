@@ -52,7 +52,7 @@
                     <td><button class="btn btn-primary" id="deposit-btn" data-prsnid="@p.Id">Deposit</button></td>
                     <td id="first-name-this">@p.FirstName <span id="last-name-this">@p.LastName</span></td>
                     <td id="cell-this">@p.Cell</td>
-                    <td id="deposit-this">@p.Deposit</td>
+                    <td id="deposit-this">@p.Balance</td>
                     <td id="always-include-this">
                         @if (p.AlwaysInclude)
                         {
@@ -60,9 +60,10 @@
                         }
                     </td>
                     <td>
+                        @{string formattedDate = p.Date.ToString("yyyy-mm-dd");}
                         <a href="/home/history?id=@p.Id" class="btn btn-info">Show History</a>
                         <button data-first-name="@p.FirstName" data-last-name="@p.LastName" data-cell="@p.Cell"
-                                data-date="@p.Date" date-always-include="@p.AlwaysInclude" data-id="@p.Id" class="btn btn-danger" id="edit-btn">
+                                data-date="@formattedDate" date-always-include="@p.AlwaysInclude" data-id="@p.Id" class="btn btn-danger" id="edit-btn">
                             Edit
                         </button>
                     </td>

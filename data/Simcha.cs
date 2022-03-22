@@ -12,9 +12,11 @@ namespace data
         public string LastName { get; set; }
         public string Cell { get; set; }
         public int Id { get; set; }
-        public decimal Deposit { get; set; }
+        public decimal Balance { get; set; }
         public DateTime Date { get; set; }
         public bool AlwaysInclude { get; set; }
+        public bool Include { get; set; }
+
     }
     public class Simcha
     {

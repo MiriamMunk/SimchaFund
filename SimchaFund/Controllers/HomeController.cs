@@ -15,87 +15,99 @@ namespace SimchaFund.Controllers
     public class HomeController : Controller
     {
         private string _connectionString = @"Data Source=.\sqlexpress;Initial Catalog=Simcha;Integrated Security=true;";
-        public IActionResult Index()
+        public IActionResult Contributors()
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
+            var p = c.GetPeople();
             return View(new ViewModel
             {
-                People = c.getPeople(),
+                People = p,
                 NewPersonTempData = (string)TempData["personCreated"],
                 DepositTempData = (string)TempData["Deposit"],
-                Total = c.getPeople().Select(x => x.Deposit).ToList().Sum(),
+                Total = p.Select(x => x.Balance).ToList().Sum(),
                 UpdatePersonTempData = (string)TempData["updatePerson"]
             });
         }
+        [HttpPost]
         public IActionResult add(Person p)
         {
-            Class1 c = new Class1(_connectionString);
-            c.addPerson(p);
+            dbMngr c = new dbMngr(_connectionString);
+            c.AddPerson(p);
             TempData["personCreated"] = "New Contributor Created!! :)";
-            return Redirect("/home/index");
+            return Redirect("/home/Contributors");
         }
+        [HttpPost]
         public IActionResult addSimcha(Simcha s)
         {
-            Class1 c = new Class1(_connectionString);
-            c.addSimcha(s);
+            dbMngr c = new dbMngr(_connectionString);
+            c.AddSimcha(s);
             TempData["message"] = "New Simcha Created!! :)";
-            return Redirect("/home/privacy");
+            return Redirect("/home/Simchas");
         }
-        public IActionResult Privacy()
+        public IActionResult Simchas()
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
             return View(new ViewModel
             {
-                Simchos = c.getSimchos(),
+                Simchos = c.GetSimchos(),
                 NewSimchaTempdata = (string)TempData["message"],
-                People = c.getPeople(),
+                People = c.GetPeople(),
                 UpdateSimchaTempData = (string)TempData["updateSimcha"]
             });
         }
         public IActionResult History(int id)
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
             return View(new ViewModel
             {
-                NameOfPerson = c.getPersonById(id),
-                History = c.getPersonHistory(id).OrderByDescending(x => x.Date).ToList()
+                NameOfPerson = c.GetPersonById(id),
+                History = c.GetPersonHistory(id).OrderByDescending(x => x.Date).ToList()
             });
         }
         public IActionResult contributions(int id)
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
+            var x = c.GetPeople();
+            foreach (var p in x)
+            {
+                p.Include = c.CheckIfContributed(p.Id, id);
+            };
             return View(new ViewModel
             {
-                People =  c.getPeople(),
-                NameOfSimcha = c.getSimchaById(id)
+                People = x,
+                NameOfSimcha = c.GetSimchaById(id)
             });
         }
+        [HttpPost]
         public IActionResult update(int SimchaId, List<Person> person)
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
+            c.DeleteSimchaContributers(SimchaId);
             for (int i = 0; i < person.Count(); i++)
             {
-                if (person[i].AlwaysInclude)
+                if (person[i].Include)
                 {
-                    c.UpdateSimcha(SimchaId, person[i].Deposit, person[i].Id);
+                    c.UpdateSimcha(SimchaId, person[i].Balance, person[i].Id);
                 }
             }
             TempData["updateSimcha"] = "Simcha updated successfully :)";
-            return Redirect("/home/privacy");
+            return Redirect("/home/Simchas");
         }
+        [HttpPost]
         public IActionResult saveDeposit(int personId, decimal amount, DateTime date)
         {
-            Class1 c = new Class1(_connectionString);
-            c.addDeposit(personId, amount, date);
+            dbMngr c = new dbMngr(_connectionString);
+            c.AddDeposit(personId, amount, date);
             TempData["Deposit"] = "Deposit successfully recorded :)";
-            return Redirect("/home/index");
+            return Redirect("/home/Contributors");
         }
+        [HttpPost]
         public IActionResult Edit(Person p)
         {
-            Class1 c = new Class1(_connectionString);
+            dbMngr c = new dbMngr(_connectionString);
             c.EditPerson(p);
             TempData["updatePerson"] = "person updated successfully :)";
-            return Redirect("/home/index");
+            return Redirect("/home/Contributors");
         }
     }
 }

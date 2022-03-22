@@ -21,17 +21,17 @@
                 {
                     <tr>
                         <td>
-                            @if (Model.People[i].AlwaysInclude)
+                            @if (Model.People[i].Include || Model.People[i].AlwaysInclude)
                             {
-                                <input type="checkbox" value="true" name="person[@i].AlwaysInclude" checked="checked">
+                                <input type="checkbox" value="true" name="person[@i].Include" checked="checked">
                             }
                             else
                             { 
-                                <input type="checkbox" value="true" name="person[@i].AlwaysInclude" >
+                                <input type="checkbox" value="true" name="person[@i].Include" >
                             }
                         </td>
                         <td>@Model.People[i].FirstName <span>@Model.People[i].LastName</span></td>
-                        <td>@Model.People[i].Deposit</td>
+                        <td>@Model.People[i].Balance</td>
                         <td>
                             @if (Model.People[i].AlwaysInclude)
                             {
@@ -39,7 +39,7 @@
                             }
                         </td>
                         <td>
-                            <input type="text" value="5" name="person[@i].deposit" />
+                            <input type="text" value="5" name="person[@i].Balance" />
                         </td>
                     </tr>
                     <input type="hidden" value="@Model.People[i].Id" name="person[@i].id" />

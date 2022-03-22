@@ -5,14 +5,14 @@ using System.Data.SqlClient;
 
 namespace data
 {
-    public class Class1
+    public class dbMngr
     {
         private string _ConnString;
-        public Class1(string conn)
+        public dbMngr(string conn)
         {
             _ConnString = conn;
         }
-        public List<Person> getPeople()
+        public List<Person> GetPeople()
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -27,7 +27,7 @@ namespace data
                     FirstName = (string)reader["FirstName"],
                     LastName = (string)reader["LastName"],
                     Id = (int)reader["Id"],
-                    Deposit = getPersonTotalById((int)reader["Id"]),
+                    Balance = GetPersonTotalById((int)reader["Id"]),
                     Cell = (string)reader["Cell"],
                     Date = (DateTime)reader["date"],
                     AlwaysInclude = (bool)reader["alwaysInclude"]
@@ -35,7 +35,7 @@ namespace data
             }
             return people;
         }
-        public List<History> getPersonHistory(int id)
+        public List<History> GetPersonHistory(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -56,10 +56,10 @@ namespace data
                     Amount = (decimal)reader["Amount"]
                 });
             }
-            h.AddRange(getPersonHistory2(id));
+            h.AddRange(GetPersonHistory2(id));
             return h;
         }
-        public List<History> getPersonHistory2(int id)
+        public List<History> GetPersonHistory2(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -73,14 +73,14 @@ namespace data
             {
                 h.Add(new History
                 {
-                    Action = getSimchaById((int)reader["SimchaId"]).Name,
+                    Action = GetSimchaById((int)reader["SimchaId"]).Name,
                     Date = (DateTime)reader["Date"],
                     Amount = -(decimal)reader["Amount"]
                 });
             }
             return h;
         }
-        public List<Simcha> getSimchos()
+        public List<Simcha> GetSimchos()
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -95,13 +95,13 @@ namespace data
                     Name = (string)reader["Name"],
                     Date = (DateTime)reader["Date"],
                     Id = (int)reader["Id"],
-                    Total = getSimchaTotalById((int)reader["Id"]),
-                    NumOfContributers = numOfContributers((int)reader["Id"]),
+                    Total = GetSimchaTotalById((int)reader["Id"]),
+                    NumOfContributers = NumOfContributers((int)reader["Id"]),
                 });
             }
             return simchos;
         }
-        public decimal getSimchaTotalById(int id)
+        public decimal GetSimchaTotalById(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -115,7 +115,7 @@ namespace data
             conn.Open();
             return (decimal)cmd.ExecuteScalar();
         }
-        public decimal getPersonTotalById(int id)
+        public decimal GetPersonTotalById(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -125,10 +125,10 @@ namespace data
                                 where p.Id = @id";
             cmd.Parameters.AddWithValue("@id", id);
             conn.Open();
-            decimal money = getPersonTotalById2(id);
+            decimal money = GetPersonTotalById2(id);
             return (decimal)cmd.ExecuteScalar() - money;
         }
-        public decimal getPersonTotalById2(int id)
+        public decimal GetPersonTotalById2(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -140,7 +140,7 @@ namespace data
             conn.Open();
             return (decimal)cmd.ExecuteScalar();
         }
-        public void addPerson(Person p)
+        public void AddPerson(Person p)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -153,9 +153,9 @@ namespace data
             cmd.Parameters.AddWithValue("@ai", p.AlwaysInclude);
 
             conn.Open();
-            addDeposit((int)(decimal)cmd.ExecuteScalar(), p.Deposit, p.Date);
+            AddDeposit((int)(decimal)cmd.ExecuteScalar(), p.Balance, p.Date);
         }
-        public void addDeposit(int id, decimal amount, DateTime date)
+        public void AddDeposit(int id, decimal amount, DateTime date)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -168,7 +168,7 @@ namespace data
             conn.Open();
             cmd.ExecuteNonQuery();
         }
-        public Person getPersonById(int id)
+        public Person GetPersonById(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -185,12 +185,12 @@ namespace data
                 people.Cell = (string)reader["Cell"];
                 people.Date = (DateTime)reader["date"];
                 people.AlwaysInclude = (bool)reader["alwaysInclude"];
-                people.Deposit = getPersonTotalById((int)reader["Id"]);
+                people.Balance = GetPersonTotalById((int)reader["Id"]);
             };
 
             return people;
         }
-        public Simcha getSimchaById(int id)
+        public Simcha GetSimchaById(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -208,7 +208,7 @@ namespace data
 
             return s;
         }
-        public void addSimcha(Simcha s)
+        public void AddSimcha(Simcha s)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -251,7 +251,7 @@ namespace data
             conn.Open();
             cmd.ExecuteNonQuery();
         }
-        public int numOfContributers(int id)
+        public int NumOfContributers(int id)
         {
             SqlConnection conn = new(_ConnString);
             SqlCommand cmd = conn.CreateCommand();
@@ -262,6 +262,33 @@ namespace data
             cmd.Parameters.AddWithValue("@id", id);
             conn.Open();
             return (int)cmd.ExecuteScalar();
+        }
+        public void DeleteSimchaContributers(int SimchaId)
+        {
+            SqlConnection conn = new(_ConnString);
+            SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"delete from SimchaPeople
+                                where SimchaId = @id";
+            cmd.Parameters.AddWithValue("@Id", SimchaId);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+        }
+        public bool CheckIfContributed(int pId, int sId)
+        {
+            SqlConnection conn = new(_ConnString);
+            SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"select * from SimchaPeople
+                                where PersonId = @pId and SimchaId = @sId";
+            conn.Open();
+            cmd.Parameters.AddWithValue("@pId", pId);
+            cmd.Parameters.AddWithValue("@sId", sId);
+            SqlDataReader reader = cmd.ExecuteReader();
+            if(!reader.Read())
+            {
+                return false;
+            }
+            return true;
         }
     }
 
